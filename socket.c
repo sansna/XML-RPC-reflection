@@ -3,7 +3,7 @@
 
 static void socket_hint_init(struct addrinfo* addr) {
   memset(addr, 0, sizeof(struct addrinfo));
-  addr->ai_family = AF_UNSPEC;
+  addr->ai_family = AF_INET;
   addr->ai_socktype = SOCK_STREAM;
   addr->ai_protocol = IPPROTO_TCP;
 }
@@ -13,16 +13,32 @@ static BOOL sock_connect(socket_t sock, struct addrinfo* addr_res) {
   int error_flag = 1;
   fd_set desc_set;
   struct timeval time_conf;
+#if 0
+  struct sockaddr_in serv_addr;
+
+  bzero((char *) &serv_addr, sizeof(serv_addr));
+  serv_addr.sin_family = AF_INET;
+  serv_addr.sin_addr.s_addr = 0x0502000a; // Or be set by inet_pton(AF_INET, "10.0.2.5", s_addr);
+  serv_addr.sin_port = htons(80);
+#endif
 
   time_conf.tv_sec = 5;
   time_conf.tv_usec = 0;
   FD_ZERO(&desc_set);
   FD_SET(sock, &desc_set);
 
+#if 0
+  if(SOCK_ASSERT(connect(sock, &serv_addr, addr_res->ai_addrlen))) {
+#else
   if(SOCK_ASSERT(connect(sock, addr_res->ai_addr, addr_res->ai_addrlen))) {
+#endif
     if(select(sock + 1, NULL, &desc_set, NULL, &time_conf) > 0) {
       int ret_sock = getsockopt(sock, SOL_SOCKET, SO_ERROR, &error_flag, &sock_opt);
+#if 0
       if(ret_sock || sock_opt != 0) {
+#else
+	  if (ret_sock) {
+#endif
        close(sock);
        return FALSE;
       }
